@@ -59,7 +59,7 @@ class AlbumsService {
 
   async deleteAlbumById(id) {
     const query = {
-      text: "DELETE FROM album WHERE id = $1 RETURNING id",
+      text: "DELETE FROM albums WHERE id = $1 RETURNING id",
       values: [id],
     };
 

@@ -56,7 +56,7 @@ class SongsHandler {
     this.putSongByIdHandler = async (request, h) => {
       this._validator.validateSongPayload(request.payload);
       const { id } = request.params;
-      await this._service.putSongById(id, request.payload);
+      await this._service.editSongById(id, request.payload);
       return {
         status: "success",
         message: "Lagu berhasil diperbarui",

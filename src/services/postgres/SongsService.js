@@ -1,7 +1,7 @@
 const { nanoid } = require("nanoid");
 const { Pool } = require("pg");
 const InvariantError = require("../../exceptions/InvariantError");
-const { mapDBToModel } = require("../../utils");
+const { mapDBToModelSong } = require("../../utils");
 const NotFoundError = require("../../exceptions/NotFoundError");
 
 class SongsService {
@@ -28,7 +28,7 @@ class SongsService {
 
   async getSongs() {
     const result = await this._pool.query("SELECT * FROM songs");
-    return result.rows.map(mapDBToModel);
+    return result.rows.map(mapDBToModelSong);
   }
 
   async getSongById(id) {
@@ -42,7 +42,7 @@ class SongsService {
       throw new NotFoundError("Lagu tidak ditemukan");
     }
 
-    return result.rows.map(mapDBToModel);
+    return result.rows.map(mapDBToModelSong);
   }
 
   // async getSongByAlbumId(albumId) {
@@ -56,7 +56,7 @@ class SongsService {
   //     throw new NotFoundError("Lagu tidak ditemukan");
   //   }
 
-  //   return result.rows.map(mapDBToModel);
+  //   return result.rows.map(mapDBToModelSong);
   // }
 
   async editSongById(id, { title, year, genre, performer, duration, albumId }) {
@@ -73,7 +73,7 @@ class SongsService {
 
   async deleteSongById(id) {
     const query = {
-      text: "DELETE FROM song WHERE id = $1 RETURNING id",
+      text: "DELETE FROM songs WHERE id = $1 RETURNING id",
       values: [id],
     };
 
