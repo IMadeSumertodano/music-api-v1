@@ -26,11 +26,6 @@ class AlbumsService {
     return result.rows[0].id;
   }
 
-  async getAlbums() {
-    const result = await this._pool.query("SELECT * FROM albums");
-    return result.rows.map(mapDBToModelAlbum);
-  }
-
   async getAlbumById(id) {
     const query = {
       text: "SELECT * FROM albums WHERE id = $1",
