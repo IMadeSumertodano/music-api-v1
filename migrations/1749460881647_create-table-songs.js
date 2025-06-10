@@ -28,6 +28,8 @@ exports.up = (pgm) => {
     },
     albumId: {
       type: "VARCHAR(50)",
+      references: "albums(id)",
+      onDelete: "CASCADE",
       notNull: false,
     },
   });
