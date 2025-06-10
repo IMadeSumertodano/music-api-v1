@@ -10,7 +10,7 @@ class AlbumsService {
   }
 
   async addAlbum({ name, year }) {
-    const id = nanoid(16);
+    const id = `album-${nanoid(16)}`;
 
     const query = {
       text: "INSERT INTO albums VALUES($1, $2, $3) RETURNING id",
@@ -47,7 +47,7 @@ class AlbumsService {
 
   async editAlbumById(id, { name, year }) {
     const query = {
-      text: "UPDATE albums SET name = $1, year = $2 WHERE id=$3 RETURNING id",
+      text: "UPDATE albums SET name = $1, year = $2 WHERE id = $3 RETURNING id",
       values: [name, year, id],
     };
     const result = await this._pool.query(query);
