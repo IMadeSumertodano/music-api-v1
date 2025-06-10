@@ -1,5 +1,5 @@
 node_modules
-notes-api-web-server.pem
+open-music-api-webserver.pem
 .env
 .prod.env
 *.zip
