@@ -42,7 +42,8 @@ class AlbumsService {
       throw new NotFoundError("Album tidak ditemukan");
     }
 
-    return result.rows.map(mapDBToModelAlbum);
+    const albumArr = result.rows.map(mapDBToModelAlbum);
+    return albumArr[0];
   }
 
   async editAlbumById(id, { name, year }) {
