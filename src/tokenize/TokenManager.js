@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 const Jwt = require("@hapi/jwt");
 const InvariantError = require("../exceptions/InvariantError");
 
