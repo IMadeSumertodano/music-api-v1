@@ -1,8 +1,6 @@
 class PlaylistsHandler {
-  constructor(playlistsService, usersService, tokenManager, validator) {
+  constructor(playlistsService, validator) {
     this._playlistsService = playlistsService;
-    this._usersService = usersService;
-    this._tokenManager = tokenManager;
     this._validator = validator;
 
     this.postPlaylistHandler = async (request, h) => {
@@ -52,7 +50,7 @@ class PlaylistsHandler {
     };
 
     this.postSongToPlaylistHandler = async (request, h) => {
-      this._validator.validateSongPayload(request.payload);
+      this._validator.validateSongToPlaylistPayload(request.payload);
       const { id } = request.params;
       const { songId } = request.payload;
       const { id: credentialsId } = request.auth.credentials;
