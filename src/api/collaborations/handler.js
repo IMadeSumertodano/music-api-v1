@@ -27,7 +27,7 @@ class CollaborationsHandler {
       return response;
     };
 
-    this.deleteCollaborationHandler = async (request, h) => {
+    this.deleteCollaborationHandler = async (request) => {
       this._validator.validateCollaborationPayload(request.payload);
       const { id: credentialId } = request.auth.credentials;
       const { playlistId, userId } = request.payload;
