@@ -118,7 +118,26 @@ class PlaylistsService {
     }
   }
 
-  async verifyNoteAccess(id, userId) {
+  async verifyPlaylistOwner(id, owner) {
+    const query = {
+      text: "SELECT * FROM playlists WHERE id = $1",
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError("Playlist tidak ditemukan");
+    }
+
+    const playlist = result.rows[0];
+
+    if (playlist.owner !== owner) {
+      throw new AuthorizationError("Anda tidak berhak mengakses resource ini");
+    }
+  }
+
+  async verifyPlaylistAccess(id, userId) {
     try {
       await this.verifyPlaylistOwner(id, userId);
     } catch (error) {
@@ -130,25 +149,6 @@ class PlaylistsService {
       } catch {
         throw error;
       }
-    }
-  }
-
-  async verifyPlaylistOwner(id, owner) {
-    const query = {
-      text: "SELECT * FROM playlists WHERE id = $1",
-      values: [id],
-    };
-
-    const result = await this._pool.query(query);
-
-    if (!result.rows.length) {
-      throw new NotFoundError("Catatan tidak ditemukan");
-    }
-
-    const playlist = result.rows[0];
-
-    if (playlist.owner !== owner) {
-      throw new AuthorizationError("Anda tidak berhak mengakses resource ini");
     }
   }
 }
