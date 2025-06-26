@@ -47,6 +47,14 @@ const routes = (handler) => [
       auth: "musicsapp_jwt",
     },
   },
+  {
+    method: "GET",
+    path: "/playlists/{id}/activities",
+    handler: (request, h) => handler.getPlaylistActivitiesHandler(request, h),
+    options: {
+      auth: "musicsapp_jwt",
+    },
+  },
 ];
 
 module.exports = routes;
