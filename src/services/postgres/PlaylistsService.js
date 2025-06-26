@@ -27,17 +27,13 @@ class PlaylistsService {
     return result.rows[0].id;
   }
 
-  async getPlaylists(userId) {
+  async getPlaylists(owner) {
     const query = {
-      text: `
-        SELECT playlists.id, playlists.name, users.username
-        FROM playlists
-        LEFT JOIN users ON users.id = playlists.owner
-        LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id
-        WHERE playlists.owner = $1 OR collaborations.user_id = $1
-        GROUP BY playlists.id, users.username
-      `,
-      values: [userId],
+      text: `SELECT playlists.* FROM playlists
+    LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id
+    WHERE playlists.owner = $1 OR collaborations.user_id = $1
+    GROUP BY playlists.id`,
+      values: [owner],
     };
 
     const result = await this._pool.query(query);
@@ -119,6 +115,21 @@ class PlaylistsService {
       throw new NotFoundError(
         "Lagu gagal dihapus dari playlist. Lagu tidak ditemukan dalam playlist ini"
       );
+    }
+  }
+
+  async verifyNoteAccess(id, userId) {
+    try {
+      await this.verifyPlaylistOwner(id, userId);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      try {
+        await this._collaborationService.verifyCollaborator(id, userId);
+      } catch {
+        throw error;
+      }
     }
   }
 
