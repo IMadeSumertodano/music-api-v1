@@ -29,10 +29,12 @@ class PlaylistsService {
 
   async getPlaylists(owner) {
     const query = {
-      text: `SELECT playlists.* FROM playlists
-    LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id
-    WHERE playlists.owner = $1 OR collaborations.user_id = $1
-    GROUP BY playlists.id`,
+      text: `SELECT playlists.id, playlists.name, users.username
+      FROM playlists 
+      LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id
+      JOIN users ON playlists.owner = users.id
+      WHERE playlists.owner = $1 OR collaborations.user_id = $1
+      GROUP BY playlists.id, users.username`,
       values: [owner],
     };
 
@@ -73,7 +75,7 @@ class PlaylistsService {
         SELECT playlists.id, playlists.name, users.username,
                songs.id AS song_id, songs.title, songs.performer
         FROM playlists
-        JOIN users ON playlists.owner = users.id
+        LEFT JOIN users ON playlists.owner = users.id
         LEFT JOIN playlist_songs ON playlist_songs.playlist_id = playlists.id
         LEFT JOIN songs ON songs.id = playlist_songs.song_id
         WHERE playlists.id = $1
@@ -150,6 +152,45 @@ class PlaylistsService {
         throw error;
       }
     }
+  }
+
+  async addActivity({ playlistId, songId, userId, action }) {
+    const id = `activity-${nanoid(16)}`;
+    const time = new Date().toISOString();
+
+    const query = {
+      text: `INSERT INTO playlist_song_activities (id, playlist_id, song_id, user_id, action, time)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+      values: [id, playlistId, songId, userId, action, time],
+    };
+
+    await this._pool.query(query);
+  }
+
+  async getPlaylistActivities(playlistId) {
+    const query = {
+      text: `
+      SELECT users.username, songs.title, activities.action, activities.time
+      FROM playlist_song_activities activities
+      JOIN users ON users.id = activities.user_id
+      JOIN songs ON songs.id = activities.song_id
+      WHERE activities.playlist_id = $1
+      ORDER BY activities.time ASC
+    `,
+      values: [playlistId],
+    };
+
+    const result = await this._pool.query(query);
+
+    return {
+      playlistId,
+      activities: result.rows.map((row) => ({
+        username: row.username,
+        title: row.title,
+        action: row.action,
+        time: row.time.toISOString(),
+      })),
+    };
   }
 }
 
