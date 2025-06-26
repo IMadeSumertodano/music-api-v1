@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
 const AuthenticationError = require("../../exceptions/AuthenticationError");
+const AuthorizationError = require("../../exceptions/AuthorizationError");
 
 class PlaylistsService {
   constructor(songsService, collaborationsService) {
@@ -123,26 +124,23 @@ class PlaylistsService {
     }
   }
 
-  async verifyUserCredential(username, password) {
+  async verifyPlaylistOwner(id, owner) {
     const query = {
-      text: "SELECT id, password FROM users WHERE username = $1",
-      values: [username],
+      text: "SELECT * FROM playlists WHERE id = $1",
+      values: [id],
     };
 
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new AuthenticationError("Kredensial yang Anda berikan salah");
+      throw new NotFoundError("Catatan tidak ditemukan");
     }
 
-    const { id, password: hashedPassword } = result.rows[0];
+    const playlist = result.rows[0];
 
-    const match = await bcrypt.compare(password, hashedPassword);
-
-    if (!match) {
-      throw new AuthenticationError("Kredensial yang Anda berikan salah");
+    if (playlist.owner !== owner) {
+      throw new AuthorizationError("Anda tidak berhak mengakses resource ini");
     }
-    return id;
   }
 }
 
