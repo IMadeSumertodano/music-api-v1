@@ -149,7 +149,7 @@ const init = async () => {
         status: statusCode >= 500 ? "fail" : "error",
         message: payload.message,
       });
-      newResponse.code(500);
+      newResponse.code(statusCode);
       return newResponse;
     }
     return h.continue;
