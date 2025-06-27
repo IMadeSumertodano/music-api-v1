@@ -132,6 +132,7 @@ const init = async () => {
 
   server.ext("onPreResponse", (request, h) => {
     const { response } = request;
+    // Tangani error yang berasal dari custom class turunan ClientError
     if (response instanceof ClientError) {
       const newResponse = h.response({
         status: "fail",
@@ -140,10 +141,16 @@ const init = async () => {
       newResponse.code(response.statusCode);
       return newResponse;
     }
+
+    // Tangani error native dari Hapi (Boom error)
     if (response.isBoom) {
+      const { statusCode, payload } = response.output;
       const newResponse = h.response({
-        status: "error",
-        message: "Terjadi kesalahan pada server kami",
+        status: statusCode < 500 ? "fail" : "error",
+        message:
+          statusCode < 500
+            ? payload.message
+            : "Terjadi kesalahan pada server kami",
       });
       newResponse.code(500);
       return newResponse;
