@@ -4,10 +4,12 @@ class PlaylistsHandler {
     this._validator = validator;
 
     this.postPlaylistHandler = async (request, h) => {
-      this._validator.validatePlaylistPayload(request.payload);
+      // validasi payload
+      this._validator.validatePostPlaylistPayload(request.payload);
       const { name } = request.payload;
       const { id: credentialId } = request.auth.credentials;
 
+      // tambahkan playlist ke database
       const playlistId = await this._playlistsService.addPlaylist({
         name,
         owner: credentialId,
@@ -48,7 +50,7 @@ class PlaylistsHandler {
     };
 
     this.postSongToPlaylistHandler = async (request, h) => {
-      this._validator.validateSongToPlaylistPayload(request.payload);
+      this._validator.validatePostSongToPlaylistPayload(request.payload);
       const { id } = request.params;
       const { songId } = request.payload;
       const { id: credentialId } = request.auth.credentials;
@@ -80,7 +82,7 @@ class PlaylistsHandler {
     };
 
     this.deleteSongFromPlaylistHandler = async (request) => {
-      this._validator.validateSongPayload(request.payload);
+      this._validator.validatePostSongPayload(request.payload);
       const { id } = request.params;
       const { songId } = request.payload;
       const { id: credentialId } = request.auth.credentials;
