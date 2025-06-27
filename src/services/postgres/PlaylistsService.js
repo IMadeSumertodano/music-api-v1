@@ -31,8 +31,8 @@ class PlaylistsService {
     const query = {
       text: `SELECT playlists.id, playlists.name, users.username
       FROM playlists 
+      LEFT JOIN users ON playlists.owner = users.id
       LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id
-      JOIN users ON playlists.owner = users.id
       WHERE playlists.owner = $1 OR collaborations.user_id = $1
       GROUP BY playlists.id, users.username`,
       values: [owner],
@@ -139,29 +139,29 @@ class PlaylistsService {
     }
   }
 
-  async verifyPlaylistAccess(id, userId) {
+  async verifyPlaylistAccess(id, owner) {
     try {
-      await this.verifyPlaylistOwner(id, userId);
+      await this.verifyPlaylistOwner(id, owner);
     } catch (error) {
       if (error instanceof NotFoundError) {
         throw error;
       }
       try {
-        await this._collaborationService.verifyCollaborator(id, userId);
+        await this._collaborationsService.verifyCollaborator(id, owner);
       } catch {
         throw error;
       }
     }
   }
 
-  async addActivity({ playlistId, songId, userId, action }) {
+  async addActivity({ playlistId, songId, owner, action }) {
     const id = `activity-${nanoid(16)}`;
     const time = new Date().toISOString();
 
     const query = {
       text: `INSERT INTO playlist_song_activities (id, playlist_id, song_id, user_id, action, time)
            VALUES ($1, $2, $3, $4, $5, $6)`,
-      values: [id, playlistId, songId, userId, action, time],
+      values: [id, playlistId, songId, owner, action, time],
     };
 
     await this._pool.query(query);
@@ -171,7 +171,7 @@ class PlaylistsService {
     const query = {
       text: `
       SELECT users.username, songs.title, activities.action, activities.time
-      FROM playlist_song_activities activities
+      FROM playlist_song_activities psa
       JOIN users ON users.id = activities.user_id
       JOIN songs ON songs.id = activities.song_id
       WHERE activities.playlist_id = $1
