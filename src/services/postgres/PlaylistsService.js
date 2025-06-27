@@ -69,12 +69,13 @@ class PlaylistsService {
       throw new InvariantError("Lagu gagal ditambahkan ke playlist");
     }
   }
+
   async getSongsInPlaylist(playlistId) {
     const playlistQuery = {
       text: `
         SELECT playlists.id, playlists.name, users.username,
                songs.id AS song_id, songs.title, songs.performer
-        FROM playlist_songs
+        FROM playlists
         LEFT JOIN users ON playlists.owner = users.id
         LEFT JOIN playlist_songs ON playlist_songs.playlist_id = playlists.id
         LEFT JOIN songs ON songs.id = playlist_songs.song_id
