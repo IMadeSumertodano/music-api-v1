@@ -74,7 +74,7 @@ class PlaylistsService {
       text: `
         SELECT playlists.id, playlists.name, users.username,
                songs.id AS song_id, songs.title, songs.performer
-        FROM playlists
+        FROM playlists_songs
         LEFT JOIN users ON playlists.owner = users.id
         LEFT JOIN playlist_songs ON playlist_songs.playlist_id = playlists.id
         LEFT JOIN songs ON songs.id = playlist_songs.song_id
@@ -170,12 +170,12 @@ class PlaylistsService {
   async getPlaylistActivities(playlistId) {
     const query = {
       text: `
-      SELECT users.username, songs.title, activities.action, activities.time
+      SELECT users.username, songs.title, psa.action, psa.time
       FROM playlist_song_activities psa
-      JOIN users ON users.id = activities.user_id
-      JOIN songs ON songs.id = activities.song_id
-      WHERE activities.playlist_id = $1
-      ORDER BY activities.time ASC
+      JOIN users ON users.id = psa.user_id
+      JOIN songs ON songs.id = psa.song_id
+      WHERE psa.playlist_id = $1
+      ORDER BY psa.time ASC
     `,
       values: [playlistId],
     };
