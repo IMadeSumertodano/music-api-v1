@@ -58,6 +58,14 @@ class PlaylistsHandler {
       await this._playlistsService.verifyPlaylistOwner(id, credentialId);
       await this._playlistsService.addSongToPlaylist(id, songId);
 
+      // log mencatat aktivitas
+      await this._playlistsService.addActivity({
+        playlistId: id,
+        songId,
+        owner: credentialId,
+        action: "add",
+      });
+
       const response = h.response({
         status: "success",
         message: "Lagu berhasil ditambahkan ke playlist",
@@ -89,6 +97,14 @@ class PlaylistsHandler {
 
       await this._playlistsService.verifyPlaylistAccess(id, credentialId);
       await this._playlistsService.deleteSongFromPlaylist(id, songId);
+
+      // log menghapus aktivitas
+      await this._playlistsService.addActivity({
+        playlistId: id,
+        songId,
+        owner: credentialId,
+        action: "delete",
+      });
 
       return {
         status: "success",
