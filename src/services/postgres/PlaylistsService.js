@@ -74,7 +74,7 @@ class PlaylistsService {
       text: `
         SELECT playlists.id, playlists.name, users.username,
                songs.id AS song_id, songs.title, songs.performer
-        FROM playlists_songs
+        FROM playlist_songs
         LEFT JOIN users ON playlists.owner = users.id
         LEFT JOIN playlist_songs ON playlist_songs.playlist_id = playlists.id
         LEFT JOIN songs ON songs.id = playlist_songs.song_id
