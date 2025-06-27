@@ -1,6 +1,7 @@
 const { nanoid } = require("nanoid");
 const { Pool } = require("pg");
 const InvariantError = require("../../exceptions/InvariantError");
+const NotFoundError = require("../../exceptions/NotFoundError");
 
 class CollaborationsService {
   constructor() {
@@ -8,6 +9,17 @@ class CollaborationsService {
   }
 
   async addCollaboration(playlistId, userId) {
+    // cek apakah userId ada di database
+    const userQuery = {
+      text: "SELECT id FROM users WHERE id = $1",
+      values: [userId],
+    };
+    const userResult = await this._pool.query(userQuery);
+
+    if (!userResult.rows.length) {
+      throw new NotFoundError("User tidak ditemukan");
+    }
+
     const id = `collab-${nanoid(16)}`;
 
     const query = {
