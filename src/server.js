@@ -146,11 +146,8 @@ const init = async () => {
     if (response.isBoom) {
       const { statusCode, payload } = response.output;
       const newResponse = h.response({
-        status: statusCode < 500 ? "fail" : "error",
-        message:
-          statusCode < 500
-            ? payload.message
-            : "Terjadi kesalahan pada server kami",
+        status: statusCode >= 500 ? "fail" : "error",
+        message: payload.message,
       });
       newResponse.code(500);
       return newResponse;
