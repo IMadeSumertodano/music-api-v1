@@ -145,12 +145,18 @@ class PlaylistsService {
       await this.verifyPlaylistOwner(id, owner);
     } catch (error) {
       if (error instanceof NotFoundError) {
+        // jika playlist tidak ada kirim error 404
         throw error;
       }
+
+      // playlist ada tapi bukan owner atau kolaborator
       try {
         await this._collaborationsService.verifyCollaborator(id, owner);
       } catch {
-        throw error;
+        // bukan kolaborator kirim error 403
+        throw new AuthorizationError(
+          "Anda tidak berhak mengakses resource ini"
+        );
       }
     }
   }
