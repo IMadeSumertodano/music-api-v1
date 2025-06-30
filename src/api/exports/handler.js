@@ -1,18 +1,27 @@
 class ExportsHandler {
-  constructor(service, validator) {
-    this._service = service;
+  constructor(producerService, playlistsService, validator) {
+    this._producerService = producerService;
+    this._playlistsService = playlistsService;
     this._validator = validator;
 
     this.postExportPlaylistsHandler = async (request, h) => {
       this._validator.validateExportPlaylistsPayload(request.payload);
 
+      const { targetEmail } = request.payload;
+      const { id: userId } = request.auth.credentials;
+      const { playlistId } = request.params;
+
+      // Validasi akses dan keberadaan playlist
+      await this._playlistsService.verifyPlaylistAccess(playlistId, userId);
+
       const message = {
-        userId: request.auth.credentials.id,
-        targetEmail: request.payload.targetEmail,
+        playlistId,
+        targetEmail,
+        userId,
       };
 
       // mengirim pesan ke queue dengan fungsi sendMessage
-      await this._service.sendMessage(
+      await this._producerService.sendMessage(
         "export:playlists",
         JSON.stringify(message)
       );
