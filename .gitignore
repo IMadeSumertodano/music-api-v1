@@ -3,3 +3,4 @@ open-music-api-webserver.pem
 .env
 .prod.env
 *.zip
+src/api/uploads/file
