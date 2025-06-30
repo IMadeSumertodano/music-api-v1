@@ -9,13 +9,13 @@ class ExportsHandler {
 
       const { targetEmail } = request.payload;
       const { id: userId } = request.auth.credentials;
-      const { playlistId } = request.params;
+      const { id } = request.params;
 
       // Validasi akses dan keberadaan playlist
-      await this._playlistsService.verifyPlaylistAccess(playlistId, userId);
+      await this._playlistsService.verifyPlaylistAccess(id, userId);
 
       const message = {
-        playlistId,
+        playlistId: id,
         targetEmail,
         userId,
       };
