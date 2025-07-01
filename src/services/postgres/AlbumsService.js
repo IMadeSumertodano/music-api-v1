@@ -140,7 +140,7 @@ class AlbumsService {
   async getAlbumLikes(albumId) {
     try {
       const result = await this._cacheService.get(`album_likes:${albumId}`);
-      return { likes: result, isCache: true };
+      return { likes: Number(result), isCache: true };
     } catch (error) {
       const query = {
         text: "SELECT COUNT(*) AS likes FROM user_album_likes WHERE album_id = $1",
