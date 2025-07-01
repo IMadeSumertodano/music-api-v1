@@ -9,12 +9,12 @@ class AlbumsService {
     this._pool = new Pool();
   }
 
-  async addAlbum({ name, year, coverUrl }) {
+  async addAlbum({ name, year }) {
     const id = `album-${nanoid(16)}`;
 
     const query = {
-      text: "INSERT INTO albums VALUES($1, $2, $3, $4) RETURNING id",
-      values: [id, name, year, coverUrl],
+      text: "INSERT INTO albums VALUES($1, $2, $3) RETURNING id",
+      values: [id, name, year],
     };
 
     const result = await this._pool.query(query);
