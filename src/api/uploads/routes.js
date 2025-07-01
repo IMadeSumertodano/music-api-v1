@@ -11,12 +11,13 @@ const routes = (handler) => [
         allow: "multipart/form-data",
         multipart: true,
         output: "stream",
+        maxBytes: 512000, // batas maksimal 512 KB
       },
     },
   },
   {
     method: "GET",
-    path: "/albums/covers/{param*}",
+    path: "/albums/{param*}",
     handler: {
       directory: {
         path: path.resolve(__dirname, "file"),
