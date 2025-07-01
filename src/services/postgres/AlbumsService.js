@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const { nanoid } = require("nanoid");
 const { Pool } = require("pg");
 const InvariantError = require("../../exceptions/InvariantError");
@@ -5,8 +6,9 @@ const { mapDBToModelAlbum } = require("../../utils");
 const NotFoundError = require("../../exceptions/NotFoundError");
 
 class AlbumsService {
-  constructor() {
+  constructor(cacheService) {
     this._pool = new Pool();
+    this._cacheService = cacheService;
   }
 
   async addAlbum({ name, year }) {
@@ -122,28 +124,37 @@ class AlbumsService {
   }
 
   async unlikeAlbum(userId, albumId) {
-    const query = {
+    const result = await this._pool.query({
       text: "DELETE FROM user_album_likes WHERE user_id = $1 AND album_id = $2 RETURNING id",
       values: [userId, albumId],
-    };
-
-    const result = await this._pool.query(query);
+    });
 
     if (!result.rowCount) {
-      throw new InvariantError(
-        "Gagal batal menyukai album. Mungkin belum disukai."
-      );
+      throw new InvariantError("Batal menyukai album. Mungkin belum disukai.");
     }
+
+    // Hapus cache agar like count bisa diperbarui
+    await this._cacheService.delete(`album_likes:${albumId}`);
   }
 
   async getAlbumLikes(albumId) {
-    const query = {
-      text: "SELECT COUNT(*) AS likes FROM user_album_likes WHERE album_id = $1",
-      values: [albumId],
-    };
+    try {
+      const result = await this._cacheService.get(`album_likes:${albumId}`);
+      return { likes: result, isCache: true };
+    } catch (error) {
+      const query = {
+        text: "SELECT COUNT(*) AS likes FROM user_album_likes WHERE album_id = $1",
+        values: [albumId],
+      };
 
-    const result = await this._pool.query(query);
-    return parseInt(result.rows[0].likes, 10);
+      const result = await this._pool.query(query);
+      const likes = parseInt(result.rows[0].likes, 10);
+
+      // Simpan ke cache selama 30 menit
+      await this._cacheService.set(`album_likes:${albumId}`, likes, 1800);
+
+      return { likes, isCache: false };
+    }
   }
 }
 
