@@ -12,8 +12,10 @@ class CacheService {
     this._client.on("error", (error) => {
       console.error(error);
     });
-
-    this._client.connect();
+  }
+  // mengubah this._client.connect(); menjadi asinkronus
+  async connect() {
+    await this._client.connect();
   }
 
   // memastikan durasi cache harus 30 menit (1800 detik)
