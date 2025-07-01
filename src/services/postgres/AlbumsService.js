@@ -9,12 +9,12 @@ class AlbumsService {
     this._pool = new Pool();
   }
 
-  async addAlbum({ name, year }) {
+  async addAlbum({ name, year, coverUrl }) {
     const id = `album-${nanoid(16)}`;
 
     const query = {
-      text: "INSERT INTO albums VALUES($1, $2, $3) RETURNING id",
-      values: [id, name, year],
+      text: "INSERT INTO albums VALUES($1, $2, $3, $4) RETURNING id",
+      values: [id, name, year, coverUrl],
     };
 
     const result = await this._pool.query(query);
@@ -39,7 +39,6 @@ class AlbumsService {
     }
 
     const album = mapDBToModelAlbum(albumResult.rows[0]);
-    // console.log("Album:", album);
 
     // Ambil daftar lagu berdasarkan albumId
     const songsQuery = {
@@ -47,7 +46,6 @@ class AlbumsService {
       values: [id],
     };
     const songsResult = await this._pool.query(songsQuery);
-    // console.log("Songs in album:", songsResult.rows);
 
     // Gabungkan data album dengan daftar lagu
     return {

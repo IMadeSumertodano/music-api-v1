@@ -13,7 +13,7 @@ class UploadsHandler {
 
       const filename = await this._storageService.writeFile(cover, cover.hapi);
 
-      const coverUrl = `http://${process.env.HOST}:${process.env.PORT}/albums/covers/${filename}`;
+      const coverUrl = `http://${process.env.HOST}:${process.env.PORT}/uploads/file/images/${filename}`;
 
       // simpan coverUrl ke database
       await this._albumsService.updateCoverUrlById(id, coverUrl);
