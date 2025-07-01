@@ -148,7 +148,7 @@ class AlbumsService {
       };
 
       const result = await this._pool.query(query);
-      const likes = parseInt(result.rows[0].likes, 10);
+      const likes = Number(result.rows[0].likes);
 
       // Simpan ke cache selama 30 menit
       await this._cacheService.set(`album_likes:${albumId}`, likes, 1800);

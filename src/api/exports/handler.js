@@ -17,7 +17,6 @@ class ExportsHandler {
       const message = {
         playlistId: id,
         targetEmail,
-        userId,
       };
 
       // mengirim pesan ke queue dengan fungsi sendMessage
