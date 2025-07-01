@@ -19,6 +19,31 @@ const routes = (handler) => [
     path: "/albums/{id}",
     handler: (request, h) => handler.deleteAlbumByIdHandler(request, h),
   },
+  // fitur like album
+  {
+    method: "POST",
+    path: "/albums/{id}/likes",
+    handler: (request, h) => handler.postLikeAlbumHandler(request, h),
+    options: {
+      auth: "musicsapp_jwt",
+    },
+  },
+  {
+    method: "DELETE",
+    path: "/albums/{id}/likes",
+    handler: (request, h) => handler.deleteLikeAlbumHandler(request, h),
+    options: {
+      auth: "musicsapp_jwt",
+    },
+  },
+  {
+    method: "GET",
+    path: "/albums/{id}/likes",
+    handler: (request, h) => handler.getAlbumLikesHandler(request, h),
+    options: {
+      auth: "musicsapp_jwt",
+    },
+  },
 ];
 
 module.exports = routes;
