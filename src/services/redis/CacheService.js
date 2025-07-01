@@ -16,7 +16,8 @@ class CacheService {
     this._client.connect();
   }
 
-  async set(key, value, expirationInSecond = 3600) {
+  // memastikan durasi cache harus 30 menit (1800 detik)
+  async set(key, value, expirationInSecond = 1800) {
     await this._client.set(key, value, {
       EX: expirationInSecond,
     });
