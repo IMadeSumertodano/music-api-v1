@@ -66,6 +66,12 @@ class AlbumsHandler {
       const { id: userId } = request.auth.credentials;
       const { id: albumId } = request.params;
 
+      // Validasi apakah album ada
+      await this._service.verifyAlbumExists(albumId);
+      // validasi apakah user sudah like
+      await this._service.verifyUserHasNotLiked(userId, albumId);
+
+      // menyukai album
       await this._service.likeAlbum(userId, albumId);
 
       const response = h.response({

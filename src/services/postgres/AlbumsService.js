@@ -95,24 +95,6 @@ class AlbumsService {
 
   // fitur like album
   async likeAlbum(userId, albumId) {
-    // cek apakah album ada
-    const albumResult = await this._pool.query({
-      text: "SELECT id FROM albums WHERE id = $1",
-      values: [albumId],
-    });
-
-    if (!albumResult.rowCount) throw new NotFoundError("Album tidak ditemukan");
-
-    // cek apakah user sudah menyukai album
-    const existingLike = await this._pool.query({
-      text: "SELECT id FROM user_album_likes WHERE user_id = $1 AND album_id = $2",
-      values: [userId, albumId],
-    });
-
-    if (existingLike.rowCount > 0) {
-      throw new InvariantError("Anda sudah menyukai album ini");
-    }
-
     const id = `like-${nanoid(16)}`;
 
     const query = {
@@ -121,6 +103,9 @@ class AlbumsService {
     };
 
     await this._pool.query(query);
+
+    // Hapus cache agar like count bisa diperbarui
+    await this._cacheService.delete(`album_likes:${albumId}`);
   }
 
   async unlikeAlbum(userId, albumId) {
@@ -154,6 +139,30 @@ class AlbumsService {
       await this._cacheService.set(`album_likes:${albumId}`, likes, 1800);
 
       return { likes, isCache: false };
+    }
+  }
+
+  // mengecek keberadaan album
+  async verifyAlbumExists(albumId) {
+    const { rowCount } = await this._pool.query({
+      text: "SELECT id FROM albums WHERE id = $1",
+      values: [albumId],
+    });
+
+    if (!rowCount) {
+      throw new NotFoundError("Album tidak ditemukan");
+    }
+  }
+
+  // memverifikasi user apakah sudah menyukai album
+  async verifyUserHasNotLiked(userId, albumId) {
+    const { rowCount } = await this._pool.query({
+      text: "SELECT id FROM user_album_likes WHERE user_id = $1 AND album_id = $2",
+      values: [userId, albumId],
+    });
+
+    if (rowCount > 0) {
+      throw new InvariantError("Anda sudah menyukai album ini");
     }
   }
 }
