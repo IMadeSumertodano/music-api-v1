@@ -40,9 +40,6 @@ const routes = (handler) => [
     method: "GET",
     path: "/albums/{id}/likes",
     handler: (request, h) => handler.getAlbumLikesHandler(request, h),
-    options: {
-      auth: "musicsapp_jwt",
-    },
   },
 ];
 
